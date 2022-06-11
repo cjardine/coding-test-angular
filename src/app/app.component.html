@@ -1,0 +1,15 @@
+<ul *ngIf="images$ | async as images">
+
+  <li *ngFor="let image of images">
+    <img [src]="image.url" [alt]="image.alt" />
+  </li>
+
+</ul>
+
+<div class="toolbar">
+  <button (click)="getImages()">Generate</button>
+</div>
+
+<div class="preloader" *ngIf="nextImages$ | async as nextImages">
+<img *ngFor="let nextImage of nextImages" rel="preload" as="image" [src]="nextImage.url">
+</div>
