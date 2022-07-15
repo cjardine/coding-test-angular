@@ -19,35 +19,6 @@
   margin: 0 auto;
 
 
-  .toolbar {
-    margin: 70px auto;
-    padding: 70px;
-    border-top: 1px solid #dadada;
-    width: auto;
-
-    button {
-      padding: 10px 20px;
-      border: transparent 1px solid;
-      border-radius: 4px;
-      background-color: #00aaee;
-      color: white;
-      box-shadow: inset 2px 2px 4px rgba(255, 255, 255, 0.4), inset -2px -2px 4px rgba(55, 55, 55, 0.4);
-      transition: all 0.3s;
-      cursor: pointer;
-
-      &:hover {
-        background-color: #0066aa;
-        color: white;
-        box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.4), inset -2px -2px 4px rgba(255, 255, 255, 0.4);
-      }
-
-      &:active {
-        background-color: #004488;
-        color: white;
-        box-shadow: inset -2px -2px 4px rgba(255, 255, 255, 0.4), inset 2px 2px 4px rgba(55, 55, 55, 0.4);
-      }
-    }
-  }
 
   .preloader {
     display: none;

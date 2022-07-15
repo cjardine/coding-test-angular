@@ -1,7 +1,5 @@
 <app-gallery [images$]="images$" [quotes$]="quotes$"></app-gallery>
-<div class="toolbar">
-  <button (click)="getImages()">Generate</button>
-</div>
+<app-toolbar (clickEventEmitter)="getImages()"></app-toolbar>
 
 <div class="preloader" *ngIf="nextImages$ | async as nextImages">
   <img *ngFor="let nextImage of nextImages" rel="preload" [src]="nextImage.url" alt="preload">
