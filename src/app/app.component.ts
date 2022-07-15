@@ -1,12 +1,7 @@
 import {Component, OnInit} from '@angular/core';
-import {ImageServiceService, IResponseImage} from './services/image-service.service';
-import {mergeMap, tap} from 'rxjs/operators';
-import {Observable, of} from 'rxjs';
+import {ImageServiceService} from './services/image-service.service';
+import {QuoteService} from './services/quote.service';
 
-interface IImageView {
-  url: URL;
-  alt: string;
-}
 
 @Component({
   selector: 'app-root',
@@ -15,34 +10,15 @@ interface IImageView {
 })
 export class AppComponent implements OnInit {
 
-  images$ = this.imageService.images$
-    .pipe(
-      mergeMap((images: IResponseImage[]): Observable<IImageView[]> => {
-        return of(images.map(image => {
-            return {
-              url: new URL(`https://picsum.photos/id/${image.id}/600/600`),
-              alt: image.author
-            };
-          })
-        );
-      }),
-    );
+  quotes$ = this.quoteService.quotesPage$;
 
-  nextImages$ = this.imageService.nextImages$
-    .pipe(
-      mergeMap((images: IResponseImage[]): Observable<IImageView[]> => {
-        return of(images.map(image => {
-            return {
-              url: new URL(`https://picsum.photos/id/${image.id}/600/600`),
-              alt: image.author
-            };
-          })
-        );
-      }),
-    );
+  images$ = this.imageService.images$;
+
+  nextImages$ = this.imageService.nextImages$;
 
   constructor(
-    private imageService: ImageServiceService
+    private imageService: ImageServiceService,
+    private quoteService: QuoteService,
   ) {
   }
 

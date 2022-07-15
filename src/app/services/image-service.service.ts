@@ -1,7 +1,8 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {BehaviorSubject, Observable} from 'rxjs';
-import {map, switchMap} from 'rxjs/operators';
+import {BehaviorSubject, combineLatest, Observable, of} from 'rxjs';
+import {mergeMap, switchMap} from 'rxjs/operators';
+import {IQuote, QuoteService} from './quote.service';
 
 export interface IResponseImage {
   id: string;
@@ -12,46 +13,88 @@ export interface IResponseImage {
   download_url: string;
 }
 
+
+export interface IImageView {
+  url: URL;
+  alt: string;
+  link: URL;
+  quote: IQuote;
+}
+
+
 @Injectable({
   providedIn: 'root'
 })
 export class ImageServiceService {
+  private quotes$: IQuote[] = [];
   #currentPage: BehaviorSubject<number> = new BehaviorSubject<number>(1);
   #currentPageObservable: Observable<number> = this.#currentPage.asObservable();
   #nextPage: BehaviorSubject<number> = new BehaviorSubject<number>(2);
   #nextPageObservable: Observable<number> = this.#nextPage.asObservable();
   #imagesPerPage = 6;
 
-  images$: Observable<IResponseImage[]> = this.#currentPageObservable.pipe(
-    switchMap((page) => {
-      return this.http.get<IResponseImage[]>(this.fetchUrl);
-    })
+  images$: Observable<IImageView[]> = combineLatest([this.#currentPageObservable, this.quoteService.quotesPage$])
+    .pipe(
+    switchMap(([page, quotes]) => {
+      if (!quotes.length) { return of([]); }
+      return this.http.get<IResponseImage[]>(this.fetchUrl(page));
+    }),
+    mergeMap((images: IResponseImage[]): Observable<IImageView[]> => {
+      return of(images.map(this.generateImage.bind(this))
+      );
+    }),
   );
 
-  nextImages$: Observable<IResponseImage[]> = this.#nextPageObservable.pipe(
-    switchMap((page) => {
-      return this.http.get<IResponseImage[]>(this.fetchNextUrl);
-    })
+  nextImages$: Observable<IImageView[]> = combineLatest([this.#nextPageObservable, this.quoteService.quotesPage$])
+    .pipe(
+    switchMap(([page, quotes]) => {
+      if (!quotes.length) { return of([]); }
+      return this.http.get<IResponseImage[]>(this.fetchUrl(page));
+    }),
+    mergeMap((images: IResponseImage[]): Observable<IImageView[]> => {
+      return of(images.map(this.generateImage.bind(this))
+      );
+    }),
   );
 
-  get fetchUrl(): string {
-    return `https://picsum.photos/v2/list?page=${this.#currentPage.value}&limit=${this.#imagesPerPage}`;
+  generateImage(image: IResponseImage, index: number): IImageView {
+    const quote = this.quotes$[index];
+    return {
+      url: new URL(`https://picsum.photos/id/${image.id}/600/600`),
+      alt: image.author,
+      link: new URL(image.url),
+      quote
+    };
   }
 
-  get fetchNextUrl(): string {
-    return `https://picsum.photos/v2/list?page=${this.#nextPage.value}&limit=${this.#imagesPerPage}`;
-  }
 
+  fetchUrl(page: number): string {
+    return `https://picsum.photos/v2/list?page=${page}&limit=${this.#imagesPerPage}`;
+  }
 
   constructor(
-    private http: HttpClient
+    private http: HttpClient,
+    private quoteService: QuoteService
   ) {
+    this.quoteService.quotesPage$
+      .subscribe(quotes => {
+        console.log(`quotes`, quotes);
+        this.quotes$ = quotes;
+      });
+
+    combineLatest([this.#currentPageObservable, this.quoteService.quotes$])
+          .subscribe(([page, quotes]) => {
+            if (!quotes.length) { return; }
+            this.quoteService.setQuotesPage([page, this.#imagesPerPage]);
+          });
   }
 
   setPage(page?: number | undefined): void {
     if (page === undefined) {
-      this.#currentPage.next(this.#currentPage.value + 1);
-      this.#nextPage.next(this.#nextPage.value + 1);
+      const currentPage = this.#currentPage.value + 1;
+      const nextPage = this.#nextPage.value + 1;
+      this.#currentPage.next(currentPage);
+      this.#nextPage.next(nextPage);
       return;
     }
     this.#currentPage.next(page);

@@ -1,0 +1,26 @@
+:host {
+  ul {
+    @media (min-width: 600px) {
+      grid-template-columns: 1fr 1fr 1fr;
+      column-gap: 12px;
+    }
+    display: grid;
+    row-gap: 12px;
+    list-style: none;
+    padding: 0;
+    width: 100%;
+
+    li {
+      animation-name: fadeIn;
+      animation-duration: 0.5s;
+      animation-timing-function: ease-in-out;
+      animation-fill-mode: both;
+
+      @for $i from 1 through 9 {
+        &:nth-child(#{$i}) {
+          animation-delay: 0.2s * ($i - 1);
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,7 @@
+<ng-container *ngIf="quotes$ | async as quotes">
+  <ul *ngIf="images$ | async as images">
+    <li *ngFor="let image of images; index as i">
+      <app-image [image]="image"></app-image>
+    </li>
+  </ul>
+</ng-container>

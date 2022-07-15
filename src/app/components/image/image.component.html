@@ -1,0 +1,11 @@
+<figure>
+  <a [href]="image.link">
+    <img [src]="image.url" [alt]="image.alt"/>
+    <blockquote>
+      <p>{{image.quote.text}}</p>
+      <figcaption>
+        <p>{{(image.quote.author) ? image.quote.author : 'anonymous'}}</p>
+      </figcaption>
+    </blockquote>
+  </a>
+</figure>
